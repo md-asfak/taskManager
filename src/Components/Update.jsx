@@ -1,32 +1,47 @@
-import React, { useState } from "react";
-import { X } from "lucide-react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-function Modal({ onClose }) {
+function Update() {
   const [input, setInput] = useState({
     title: "",
     description: "",
     date: "",
   });
 
-  const hundleSubmit = (e) => {
-    e.preventDefault();
-    const getdata = localStorage.setItem("User", JSON.stringify(input));
-  };
+  const { id } = useParams();
+  useEffect(() => {
+    axios
+      .get(" http://localhost:3000/User" + id)
+      .then((res) => {
+        console.log(res);
+        setInput({
+          ...input,
+          title: res.data.title,
+          description: res.data.description,
+          date: res.data.date,
+        });
+      })
+      .catch((error) => {
+        console.log("This Is Error", error);
+      });
+  }, []);
 
+  const UpdateHundler = (e) => {
+    e.preventDefault();
+    axios.post("http://localhost:3000/User" + id);
+  };
   return (
-    <div className="fixed top-0 left-0 w-[100%] h-[100%] bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
-      <div className=" flex flex-col mt-10 gap-5 ">
-        <button onClick={onClose} className="place-self-end text-white ">
-          <X />
-        </button>
-        <form onSubmit={hundleSubmit}>
+    <>
+      <div className="md:pl-[250px] mt-[-400px] pl-[60px] pr-[20px] w-full h-full overflow-y-auto flex justify-center items-center">
+        <form onSubmit={UpdateHundler}>
           <div className=" flex flex-col gap-5 bg-white w-[450px] justify-center items-center py-10 rounded-md">
             <input
               type="text"
               required
-              placeholder="Title"
               value={input.title}
               onChange={(e) => setInput({ ...input, title: e.target.value })}
+              placeholder="Title"
               className="w-[350px] h-[45px] p-5 font-semibold bg-[#f1f5f9] border-[1px] outline-none border-gray-400 rounded-md "
             />
             <input
@@ -50,16 +65,15 @@ function Modal({ onClose }) {
 
             <button
               type="submit"
-              // onClick={hundleSubmit}
               className="w-[350px] h-[45px]  font-semibold bg-orange-400 border-[1px] rounded-md text-white"
             >
-              Submit Task
+              Update Task
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </>
   );
 }
 
-export default Modal;
+export default Update;
